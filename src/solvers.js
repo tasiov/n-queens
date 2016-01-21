@@ -70,35 +70,37 @@ window.findNQueensSolution = function(n) {
 window.countNQueensSolutions = function(n) {
   var solutionCount = 0;
   var board = new Board({'n':n});
+  var recursiveCalls = 0;
 
   var getArrayIndex = function(i, j) {
     return n * i + j;
-  };
+  }; // O(1)
 
   var options = {};
   options.length = n * n;
   for (var i = 0; i < n*n; i++) {
     options[i] = null;
-  }
+  } // O(n)
 
   var column = function(index) {
     return index % n;
-  };
+  }; // O(1)
+
   var row = function(index) {
     return Math.floor(index / n);
-  };
+  }; // O(1)
 
   var sameColumn = function(val1, val2) {
     return column(val1) === column(val2);
-  };
+  }; // O(1)
 
   var sameRow = function(val1, val2) {
     return row(val1) === row(val2);
-  };
+  }; // O(1)
 
   var sameDiag = function(val1, val2) {
     return Math.abs((row(val1) - row(val2)) / (column(val1) - column(val2))) === 1;
-  };             
+  }; // O(1)
 
   var eliminateCells = function(index) {
     var deleted = {};
@@ -113,6 +115,7 @@ window.countNQueensSolutions = function(n) {
   };
 
   var placeQueen = function(callNum) {
+    recursiveCalls++;
     // if (n === 4) {
     //   debugger;
     // }
@@ -134,6 +137,7 @@ window.countNQueensSolutions = function(n) {
     }
   };
   placeQueen(0);
+  console.log(recursiveCalls);
   return solutionCount;
 };
 
