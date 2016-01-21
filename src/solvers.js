@@ -35,7 +35,7 @@ window.findNRooksSolution = function(n) {
 
 // return the number of nxn chessboards that exist, with n rooks placed such that none of them can attack each other
 window.countNRooksSolutions = function(n) {
-  return _.range(n).reduce(function(a,b) { return a * b; });
+  return _.range(1,n+1).reduce(function(a,b) { return a * b; });
 };
 
 // return a matrix (an array of arrays) representing a single nxn chessboard, with n queens placed such that none of them can attack each other
@@ -68,22 +68,76 @@ window.findNQueensSolution = function(n) {
 
 // return the number of nxn chessboards that exist, with n queens placed such that none of them can attack each other
 window.countNQueensSolutions = function(n) {
-  var solutionCount = 0; //fixme
-  var board = new Board({'n': n});
-  var placePiece = function(row) {
-    if (row === n) {
+  var solutionCount = 0;
+  var board = new Board({'n':n});
+
+  var getArrayIndex = function(i, j) {
+    return n * i + j;
+  };
+
+  var options = {};
+  options.length = n * n;
+  for (var i = 0; i < n*n; i++) {
+    options[i] = null;
+  }
+
+  var column = function(index) {
+    return index % n;
+  };
+  var row = function(index) {
+    return Math.floor(index / n);
+  };
+
+  var sameColumn = function(val1, val2) {
+    return column(val1) === column(val2);
+  };
+
+  var sameRow = function(val1, val2) {
+    return row(val1) === row(val2);
+  };
+
+  var sameDiag = function(val1, val2) {
+    return Math.abs((row(val1) - row(val2)) / (column(val1) - column(val2))) === 1;
+  };             
+
+  var eliminateCells = function(index) {
+    var deleted = {};
+    for (var opt in options) {
+      if (sameColumn(opt, index) || sameRow(opt, index) || sameDiag(opt, index)) {
+        deleted[opt] = options[opt];
+        delete options[opt];
+        options.length--;
+      }
+    }
+    return deleted;
+  };
+
+  var placeQueen = function(callNum) {
+    // if (n === 4) {
+    //   debugger;
+    // }
+    if (callNum === n) {
       solutionCount++;
       return;
     }
-    for (var i = 0; i < n; i++) {
-      board.togglePiece(row, i);
-      if (!board.hasAnyQueensConflicts()) {
-        placePiece(row + 1);
+    if (options.length === 0) {
+      return;
+    }
+    for (var index in options) {
+      if (n * callNum <= index && index < n*(callNum + 1)) {
+        var oldLength = options.length;
+        var removedCells = eliminateCells(index);
+        placeQueen(callNum + 1);
+        _.extend(options, removedCells);
+        options.length = oldLength;
       }
-      board.togglePiece(row, i);
     }
   };
-  placePiece(0);
-  console.log('Number of solutions for ' + n + ' queens:', solutionCount);
+  placeQueen(0);
   return solutionCount;
 };
+
+
+
+
+
